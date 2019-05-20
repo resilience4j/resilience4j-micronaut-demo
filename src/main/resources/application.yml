@@ -1,0 +1,24 @@
+micronaut:
+  application:
+    name: resilience4j-micronaut-demo
+  server:
+    port: 8086
+  metrics:
+    enabled: true
+    sensitive: false
+    export:
+      prometheus:
+        enabled: true
+
+info.application.name: ${micronaut.application.name}
+
+endpoints:
+  info:
+    enabled: true
+    sensitive: false
+
+resilience4j.circuitbreaker:
+  backend-a:
+    ringBufferSizeInClosedState: 100
+  backend-b:
+    ringBufferSizeInClosedState: 200

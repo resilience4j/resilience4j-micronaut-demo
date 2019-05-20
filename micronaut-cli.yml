@@ -1,0 +1,5 @@
+profile: service
+defaultPackage: resilience4j.micronaut.demo
+---
+testFramework: junit
+sourceLanguage: java
