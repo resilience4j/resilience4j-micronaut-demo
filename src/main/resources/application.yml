@@ -28,30 +28,30 @@ resilience4j:
         slidingWindowSize: 10
         minimumNumberOfCalls: 10
         permittedNumberOfCallsInHalfOpenState: 3
-        waitDurationInOpenState: 5s
+        waitDurationInOpenState: PT5s
         failureRateThreshold: 50
         eventConsumerBufferSize: 10
         recordFailurePredicate: io.github.robwin.exception.RecordFailurePredicate
     configs:
       default:
         registerHealthIndicator: true
-          slidingWindowSize: 10
-          minimumNumberOfCalls: 5
-          permittedNumberOfCallsInHalfOpenState: 3
-          automaticTransitionFromOpenToHalfOpenEnabled: true
-          waitDurationInOpenState: 5s
-          failureRateThreshold: 50
-          eventConsumerBufferSize: 10
-          recordExceptions:
-            - org.springframework.web.client.HttpServerErrorException
-            - java.util.concurrent.TimeoutException
-            - java.io.IOException
-          ignoreExceptions:
-            - io.github.robwin.exception.BusinessException
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: PT5s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+        recordExceptions:
+          - io.micronaut.http.exceptions.HttpStatusException.HttpStatusException
+          - java.util.concurrent.TimeoutException
+          - java.io.IOException
+        ignoreExceptions:
+          - io.github.robwin.exception.BusinessException
       shared:
         slidingWindowSize: 100
         permittedNumberOfCallsInHalfOpenState: 30
-        waitDurationInOpenState: 1s
+        waitDurationInOpenState: PT1s
         failureRateThreshold: 50
         eventConsumerBufferSize: 10
         ignoreExceptions:
@@ -63,7 +63,7 @@ resilience4j:
         maxRetryAttempts: 3
         waitDuration: 100
         retryExceptions:
-          - org.springframework.web.client.HttpServerErrorException
+          - io.micronaut.http.exceptions.HttpStatusException.HttpStatusException
           - java.util.concurrent.TimeoutException
           - java.io.IOException
         ignoreExceptions:
@@ -82,7 +82,7 @@ resilience4j:
       backendA:
         maxConcurrentCalls: 10
       backendB:
-        maxWaitDuration: 10ms
+        maxWaitDuration: PT10ms
         maxConcurrentCalls: 20
   thread-pool-bulkhead:
     enabled: true
@@ -112,14 +112,14 @@ resilience4j:
         baseConfig: default
       backendB:
         limitForPeriod: 6
-        limitRefreshPeriod: 500ms
+        limitRefreshPeriod: PT500ms
         timeoutDuration: 3s
   timelimiter:
     enabled: true
     configs:
       default:
         cancelRunningFuture: false
-        timeoutDuration: 2s
+        timeoutDuration: PT2s
     instances:
       backendA:
         baseConfig: default

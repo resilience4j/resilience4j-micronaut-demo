@@ -1,83 +1,95 @@
 package resilience4j.micronaut.demo.service;
 
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.exceptions.HttpStatusException;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
+import io.vavr.control.Try;
+import resilience4j.micronaut.demo.exception.BusinessException;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 @Singleton()
 @Named("businessBService")
 public class BusinessBService implements Service {
 
+    private static final String BACKEND_B = "backendB";
+
     @Override
     public String failure() {
-        return null;
+        throw new HttpStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "This is a remote exception");
     }
 
     @Override
     public String failureWithFallback() {
-        return null;
+        throw new BusinessException("This exception is ignored by the CircuitBreaker of backend A");
     }
 
     @Override
     public String success() {
-        return null;
+        return "Hello World from backend A";
     }
 
     @Override
     public String successException() {
-        return null;
+        throw new HttpStatusException(HttpStatus.BAD_REQUEST, "This is a remote client exception");
     }
 
     @Override
     public String ignoreException() {
-        return null;
+        throw new BusinessException("This exception is ignored by the CircuitBreaker of backend A");
     }
 
     @Override
-    public Flowable<String> flowableSuccess() {
-        return null;
+    public Flowable<String> fluxSuccess() {
+        return Flowable.just("Hello", "World");
     }
 
     @Override
-    public Flowable<String> flowableFailure() {
-        return null;
+    public Flowable<String> fluxFailure() {
+        return Flowable.error(new IOException("BAM!"));
     }
 
     @Override
-    public Flowable<String> flowableTimeout() {
-        return null;
+    public Flowable<String> fluxTimeout() {
+        return Flowable.just("Hello World from backend A").delay(10, TimeUnit.SECONDS);
     }
 
     @Override
-    public Single<String> singleSuccess() {
-        return null;
+    public Single<String> monoSuccess() {
+        return Single.just("Hello World from backend A");
     }
 
     @Override
-    public Single<String> singleFailure() {
-        return null;
+    public Single<String> monoFailure() {
+        return Single.error(new IOException("BAM!"));
     }
 
     @Override
-    public Single<String> singleTimeout() {
-        return null;
+    public Single<String> monoTimeout() {
+        return Single.just("Hello World from backend A")
+            .delay(10, TimeUnit.SECONDS);
     }
 
     @Override
     public CompletableFuture<String> futureSuccess() {
-        return null;
+        return CompletableFuture.completedFuture("Hello World from backend A");
     }
 
     @Override
     public CompletableFuture<String> futureFailure() {
-        return null;
+        CompletableFuture<String> future = new CompletableFuture<>();
+        future.completeExceptionally(new IOException("BAM!"));
+        return future;
     }
 
     @Override
     public CompletableFuture<String> futureTimeout() {
-        return null;
+        Try.run(() -> Thread.sleep(5000));
+        return CompletableFuture.completedFuture("Hello World from backend A");
     }
 }

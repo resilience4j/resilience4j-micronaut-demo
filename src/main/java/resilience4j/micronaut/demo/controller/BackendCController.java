@@ -11,13 +11,13 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.concurrent.CompletableFuture;
 
-@Controller("/backendB")
-public class BackendBController {
+@Controller("/backendC")
+public class BackendCController {
 
     private final Service businessBService;
 
     @Inject
-    public BackendBController(@Named("businessBService") Service businessBService) {
+    public BackendCController(@Named("businessCService") Service businessBService) {
         this.businessBService = businessBService;
     }
 

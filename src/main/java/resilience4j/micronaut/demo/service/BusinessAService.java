@@ -3,19 +3,20 @@ package resilience4j.micronaut.demo.service;
 import io.github.resilience4j.annotation.Bulkhead;
 import io.github.resilience4j.annotation.CircuitBreaker;
 import io.github.resilience4j.annotation.Retry;
-import io.github.resilience4j.core.SupplierUtils;
+import io.github.resilience4j.annotation.TimeLimiter;
 import io.micronaut.context.annotation.Executable;
 import io.micronaut.http.HttpStatus;
-import io.micronaut.http.client.exceptions.HttpClientException;
-import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.http.exceptions.HttpStatusException;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
+import io.vavr.control.Try;
 import resilience4j.micronaut.demo.exception.BusinessException;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 @Singleton()
 @Named("businessAService")
@@ -31,69 +32,110 @@ public class BusinessAService implements Service {
     }
 
     @Override
-    @CircuitBreaker(name = BACKEND_A, fallbackMethod = "fallback")
+    @CircuitBreaker(name = BACKEND_A)
+    @Bulkhead(name = BACKEND_A)
     public String failureWithFallback() {
         throw new BusinessException("This exception is ignored by the CircuitBreaker of backend A");
     }
 
     @Override
+    @CircuitBreaker(name = BACKEND_A)
+    @Bulkhead(name = BACKEND_A)
+    @Retry(name = BACKEND_A)
     public String success() {
-        return null;
+        return "Hello World from backend A";
     }
 
     @Override
+    @CircuitBreaker(name = BACKEND_A)
+    @Bulkhead(name = BACKEND_A)
     public String successException() {
-        return null;
+        throw new HttpStatusException(HttpStatus.BAD_REQUEST, "This is a remote client exception");
     }
 
     @Override
+    @CircuitBreaker(name = BACKEND_A)
+    @Bulkhead(name = BACKEND_A)
     public String ignoreException() {
-        return null;
+        throw new BusinessException("This exception is ignored by the CircuitBreaker of backend A");
     }
 
     @Override
-    public Flowable<String> flowableSuccess() {
-        return null;
+    @TimeLimiter(name = BACKEND_A)
+    @CircuitBreaker(name = BACKEND_A)
+    @Retry(name = BACKEND_A)
+    public Flowable<String> fluxSuccess() {
+        return Flowable.just("Hello", "World");
     }
 
     @Override
-    public Flowable<String> flowableFailure() {
-        return null;
+    @CircuitBreaker(name = BACKEND_A)
+    @Bulkhead(name = BACKEND_A)
+    @Retry(name = BACKEND_A)
+    public Flowable<String> fluxFailure() {
+        return Flowable.error(new IOException("BAM!"));
     }
 
     @Override
-    public Flowable<String> flowableTimeout() {
-        return null;
+    @TimeLimiter(name = BACKEND_A)
+    @CircuitBreaker(name = BACKEND_A, fallbackMethod = "fluxFallback")
+    public Flowable<String> fluxTimeout() {
+        return Flowable.just("Hello World from backend A").delay(10, TimeUnit.SECONDS);
     }
 
     @Override
-    public Single<String> singleSuccess() {
-        return null;
+    @TimeLimiter(name = BACKEND_A)
+    @CircuitBreaker(name = BACKEND_A)
+    @Bulkhead(name = BACKEND_A)
+    @Retry(name = BACKEND_A)
+    public Single<String> monoSuccess() {
+        return Single.just("Hello World from backend A");
     }
 
     @Override
-    public Single<String> singleFailure() {
-        return null;
+    @CircuitBreaker(name = BACKEND_A)
+    @Bulkhead(name = BACKEND_A)
+    @Retry(name = BACKEND_A)
+    public Single<String> monoFailure() {
+        return Single.error(new IOException("BAM!"));
     }
 
     @Override
-    public Single<String> singleTimeout() {
-        return null;
+    @TimeLimiter(name = BACKEND_A)
+    @Bulkhead(name = BACKEND_A)
+    @CircuitBreaker(name = BACKEND_A, fallbackMethod = "monoFallback")
+    public Single<String> monoTimeout() {
+        return Single.just("Hello World from backend A")
+            .delay(10, TimeUnit.SECONDS);
     }
 
     @Override
+    @Bulkhead(name = BACKEND_A, type = Bulkhead.Type.THREADPOOL)
+    @TimeLimiter(name = BACKEND_A)
+    @CircuitBreaker(name = BACKEND_A)
+    @Retry(name = BACKEND_A)
     public CompletableFuture<String> futureSuccess() {
-        return null;
+        return CompletableFuture.completedFuture("Hello World from backend A");
     }
 
     @Override
+    @Bulkhead(name = BACKEND_A, type = Bulkhead.Type.THREADPOOL)
+    @TimeLimiter(name = BACKEND_A)
+    @CircuitBreaker(name = BACKEND_A)
+    @Retry(name = BACKEND_A)
     public CompletableFuture<String> futureFailure() {
-        return null;
+        CompletableFuture<String> future = new CompletableFuture<>();
+        future.completeExceptionally(new IOException("BAM!"));
+        return future;
     }
 
     @Override
+    @Bulkhead(name = BACKEND_A, type = Bulkhead.Type.THREADPOOL)
+    @TimeLimiter(name = BACKEND_A)
+    @CircuitBreaker(name = BACKEND_A, fallbackMethod = "futureFallback")
     public CompletableFuture<String> futureTimeout() {
-        return null;
+        Try.run(() -> Thread.sleep(5000));
+        return CompletableFuture.completedFuture("Hello World from backend A");
     }
 
     @Executable
@@ -101,4 +143,18 @@ public class BusinessAService implements Service {
         return "Recovered HttpServerErrorException";
     }
 
+    @Executable
+    public CompletableFuture<String> futureFallback() {
+        return CompletableFuture.completedFuture("Recovered specific TimeoutException");
+    }
+
+    @Executable
+    public Single<String> monoFallback() {
+        return Single.just("Recovered");
+    }
+
+    @Executable
+    public Flowable<String> fluxFallback() {
+        return Flowable.just("Recovered");
+    }
 }

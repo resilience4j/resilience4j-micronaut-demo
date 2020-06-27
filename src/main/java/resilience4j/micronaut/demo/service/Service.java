@@ -17,17 +17,17 @@ public interface Service {
 
     String ignoreException();
 
-    Flowable<String> flowableSuccess();
+    Flowable<String> fluxSuccess();
 
-    Flowable<String> flowableFailure();
+    Flowable<String> fluxFailure();
 
-    Flowable<String> flowableTimeout();
+    Flowable<String> fluxTimeout();
 
-    Single<String> singleSuccess();
+    Single<String> monoSuccess();
 
-    Single<String> singleFailure();
+    Single<String> monoFailure();
 
-    Single<String> singleTimeout();
+    Single<String> monoTimeout();
 
     CompletableFuture<String> futureSuccess();
 
