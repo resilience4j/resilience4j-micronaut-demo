@@ -43,27 +43,27 @@ public class BackendAController {
 
     @Get(value = "monoSuccess", produces = MediaType.TEXT_PLAIN)
     public Single<String> monoSuccess() {
-        return businessAService.monoSuccess();
+        return businessAService.singleSuccess();
     }
 
     @Get(value = "monoFailure", produces = MediaType.TEXT_PLAIN)
     public Single<String> monoFailure() {
-        return businessAService.monoFailure();
+        return businessAService.singleFailure();
     }
 
     @Get(value = "fluxSuccess", produces = MediaType.TEXT_PLAIN)
     public Flowable<String> fluxSuccess() {
-        return businessAService.fluxSuccess();
+        return businessAService.flowableSuccess();
     }
 
     @Get(value = "monoTimeout", produces = MediaType.TEXT_PLAIN)
     public Single<String> monoTimeout() {
-        return businessAService.monoTimeout();
+        return businessAService.singleTimeout();
     }
 
     @Get(value = "fluxTimeout", produces = MediaType.TEXT_PLAIN)
     public Flowable<String> fluxTimeout() {
-        return businessAService.fluxTimeout();
+        return businessAService.flowableTimeout();
     }
 
     @Get(value = "futureFailure", produces = MediaType.TEXT_PLAIN)
@@ -83,7 +83,7 @@ public class BackendAController {
 
     @Get(value = "fluxFailure", produces = MediaType.TEXT_PLAIN)
     public Flowable<String> fluxFailure() {
-        return businessAService.fluxFailure();
+        return businessAService.flowableFailure();
     }
 
     @Get(value = "fallback", produces = MediaType.TEXT_PLAIN)

@@ -45,32 +45,32 @@ public class BusinessBService implements Service {
     }
 
     @Override
-    public Flowable<String> fluxSuccess() {
+    public Flowable<String> flowableSuccess() {
         return Flowable.just("Hello", "World");
     }
 
     @Override
-    public Flowable<String> fluxFailure() {
+    public Flowable<String> flowableFailure() {
         return Flowable.error(new IOException("BAM!"));
     }
 
     @Override
-    public Flowable<String> fluxTimeout() {
+    public Flowable<String> flowableTimeout() {
         return Flowable.just("Hello World from backend A").delay(10, TimeUnit.SECONDS);
     }
 
     @Override
-    public Single<String> monoSuccess() {
+    public Single<String> singleSuccess() {
         return Single.just("Hello World from backend A");
     }
 
     @Override
-    public Single<String> monoFailure() {
+    public Single<String> singleFailure() {
         return Single.error(new IOException("BAM!"));
     }
 
     @Override
-    public Single<String> monoTimeout() {
+    public Single<String> singleTimeout() {
         return Single.just("Hello World from backend A")
             .delay(10, TimeUnit.SECONDS);
     }

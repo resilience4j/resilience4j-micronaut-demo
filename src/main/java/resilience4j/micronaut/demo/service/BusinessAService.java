@@ -64,7 +64,7 @@ public class BusinessAService implements Service {
     @TimeLimiter(name = BACKEND_A)
     @CircuitBreaker(name = BACKEND_A)
     @Retry(name = BACKEND_A)
-    public Flowable<String> fluxSuccess() {
+    public Flowable<String> flowableSuccess() {
         return Flowable.just("Hello", "World");
     }
 
@@ -72,14 +72,14 @@ public class BusinessAService implements Service {
     @CircuitBreaker(name = BACKEND_A)
     @Bulkhead(name = BACKEND_A)
     @Retry(name = BACKEND_A)
-    public Flowable<String> fluxFailure() {
+    public Flowable<String> flowableFailure() {
         return Flowable.error(new IOException("BAM!"));
     }
 
     @Override
     @TimeLimiter(name = BACKEND_A)
-    @CircuitBreaker(name = BACKEND_A, fallbackMethod = "fluxFallback")
-    public Flowable<String> fluxTimeout() {
+    @CircuitBreaker(name = BACKEND_A, fallbackMethod = "flowableFallback")
+    public Flowable<String> flowableTimeout() {
         return Flowable.just("Hello World from backend A").delay(10, TimeUnit.SECONDS);
     }
 
@@ -88,7 +88,7 @@ public class BusinessAService implements Service {
     @CircuitBreaker(name = BACKEND_A)
     @Bulkhead(name = BACKEND_A)
     @Retry(name = BACKEND_A)
-    public Single<String> monoSuccess() {
+    public Single<String> singleSuccess() {
         return Single.just("Hello World from backend A");
     }
 
@@ -96,15 +96,15 @@ public class BusinessAService implements Service {
     @CircuitBreaker(name = BACKEND_A)
     @Bulkhead(name = BACKEND_A)
     @Retry(name = BACKEND_A)
-    public Single<String> monoFailure() {
+    public Single<String> singleFailure() {
         return Single.error(new IOException("BAM!"));
     }
 
     @Override
     @TimeLimiter(name = BACKEND_A)
     @Bulkhead(name = BACKEND_A)
-    @CircuitBreaker(name = BACKEND_A, fallbackMethod = "monoFallback")
-    public Single<String> monoTimeout() {
+    @CircuitBreaker(name = BACKEND_A, fallbackMethod = "singleFallback")
+    public Single<String> singleTimeout() {
         return Single.just("Hello World from backend A")
             .delay(10, TimeUnit.SECONDS);
     }
@@ -149,12 +149,12 @@ public class BusinessAService implements Service {
     }
 
     @Executable
-    public Single<String> monoFallback() {
+    public Single<String> singleFallback() {
         return Single.just("Recovered");
     }
 
     @Executable
-    public Flowable<String> fluxFallback() {
+    public Flowable<String> flowableFallback() {
         return Flowable.just("Recovered");
     }
 }
