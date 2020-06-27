@@ -17,17 +17,111 @@ endpoints:
     enabled: true
     sensitive: false
 
-resilience4j.circuitbreaker:
-  backends:
-    backendA:
-      ringBufferSizeInClosedState: 5
-      ringBufferSizeInHalfOpenState: 3
-      waitInterval: 5000
-      failureRateThreshold: 50
-      eventConsumerBufferSize: 10
-    backendB:
-      ringBufferSizeInClosedState: 10
-      ringBufferSizeInHalfOpenState: 5
-      waitInterval: 5000
-      failureRateThreshold: 50
-      eventConsumerBufferSize: 10
+resilience4j:
+  circuitbreaker:
+    enabled: true
+    instances:
+      backendA:
+        baseConfig: default
+      backendB:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 10
+        permittedNumberOfCallsInHalfOpenState: 3
+        waitDurationInOpenState: 5s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+        recordFailurePredicate: io.github.robwin.exception.RecordFailurePredicate
+    configs:
+      default:
+        registerHealthIndicator: true
+          slidingWindowSize: 10
+          minimumNumberOfCalls: 5
+          permittedNumberOfCallsInHalfOpenState: 3
+          automaticTransitionFromOpenToHalfOpenEnabled: true
+          waitDurationInOpenState: 5s
+          failureRateThreshold: 50
+          eventConsumerBufferSize: 10
+          recordExceptions:
+            - org.springframework.web.client.HttpServerErrorException
+            - java.util.concurrent.TimeoutException
+            - java.io.IOException
+          ignoreExceptions:
+            - io.github.robwin.exception.BusinessException
+      shared:
+        slidingWindowSize: 100
+        permittedNumberOfCallsInHalfOpenState: 30
+        waitDurationInOpenState: 1s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+        ignoreExceptions:
+          - io.github.robwin.exception.BusinessException
+  retry:
+    enabled: true
+    configs:
+      default:
+        maxRetryAttempts: 3
+        waitDuration: 100
+        retryExceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - java.util.concurrent.TimeoutException
+          - java.io.IOException
+        ignoreExceptions:
+          - io.github.robwin.exception.BusinessException
+    instances:
+      backendA:
+        baseConfig: default
+      backendB:
+        baseConfig: default
+  bulkhead:
+    enabled: true
+    configs:
+      default:
+        maxConcurrentCalls: 100
+    instances:
+      backendA:
+        maxConcurrentCalls: 10
+      backendB:
+        maxWaitDuration: 10ms
+        maxConcurrentCalls: 20
+  thread-pool-bulkhead:
+    enabled: true
+    configs:
+      default:
+        maxThreadPoolSize: 4
+        coreThreadPoolSize: 2
+        queueCapacity: 2
+    instances:
+      backendA:
+        baseConfig: default
+      backendB:
+        maxThreadPoolSize: 1
+        coreThreadPoolSize: 1
+        queueCapacity: 1
+  ratelimiter:
+    enabled: true
+    configs:
+      default:
+        registerHealthIndicator: false
+        limitForPeriod: 10
+        limitRefreshPeriod: 1s
+        timeoutDuration: 0
+        eventConsumerBufferSize: 100
+    instances:
+      backendA:
+        baseConfig: default
+      backendB:
+        limitForPeriod: 6
+        limitRefreshPeriod: 500ms
+        timeoutDuration: 3s
+  timelimiter:
+    enabled: true
+    configs:
+      default:
+        cancelRunningFuture: false
+        timeoutDuration: 2s
+    instances:
+      backendA:
+        baseConfig: default
+      backendB:
+        baseConfig: default

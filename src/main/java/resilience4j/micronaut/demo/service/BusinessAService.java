@@ -1,43 +1,104 @@
 package resilience4j.micronaut.demo.service;
 
+import io.github.resilience4j.annotation.Bulkhead;
+import io.github.resilience4j.annotation.CircuitBreaker;
+import io.github.resilience4j.annotation.Retry;
 import io.github.resilience4j.core.SupplierUtils;
-import resilience4j.micronaut.demo.connector.Connector;
+import io.micronaut.context.annotation.Executable;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.client.exceptions.HttpClientException;
+import io.micronaut.http.client.exceptions.HttpClientResponseException;
+import io.micronaut.http.exceptions.HttpStatusException;
+import io.reactivex.Flowable;
+import io.reactivex.Single;
+import resilience4j.micronaut.demo.exception.BusinessException;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
-import java.util.function.Supplier;
+import java.util.concurrent.CompletableFuture;
 
 @Singleton()
-@Named("businessBService")
-public class BusinessAService implements BusinessService {
+@Named("businessAService")
+public class BusinessAService implements Service {
+    private static final String BACKEND_A = "backendA";
 
-    private final Connector backendAConnector;
-
-    public BusinessAService(@Named("backendAConnector") Connector backendAConnector) {
-        this.backendAConnector = backendAConnector;
+    @Override
+    @CircuitBreaker(name = BACKEND_A)
+    @Bulkhead(name = BACKEND_A)
+    @Retry(name = BACKEND_A)
+    public String failure() {
+        throw new HttpStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "This is a remote exception");
     }
 
     @Override
-    public String failure() {
-        return backendAConnector.failure();
+    @CircuitBreaker(name = BACKEND_A, fallbackMethod = "fallback")
+    public String failureWithFallback() {
+        throw new BusinessException("This exception is ignored by the CircuitBreaker of backend A");
     }
 
     @Override
     public String success() {
-        return backendAConnector.success();
+        return null;
     }
 
     @Override
-    public String ignore() {
-        return backendAConnector.ignoreException();
+    public String successException() {
+        return null;
     }
 
     @Override
-    public Supplier<String> methodWithRecovery() {
-        return SupplierUtils.recover(backendAConnector::failure, (th) -> recovery());
+    public String ignoreException() {
+        return null;
     }
 
-    private String recovery() {
-        return "Hello world from recovery";
+    @Override
+    public Flowable<String> flowableSuccess() {
+        return null;
     }
+
+    @Override
+    public Flowable<String> flowableFailure() {
+        return null;
+    }
+
+    @Override
+    public Flowable<String> flowableTimeout() {
+        return null;
+    }
+
+    @Override
+    public Single<String> singleSuccess() {
+        return null;
+    }
+
+    @Override
+    public Single<String> singleFailure() {
+        return null;
+    }
+
+    @Override
+    public Single<String> singleTimeout() {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<String> futureSuccess() {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<String> futureFailure() {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<String> futureTimeout() {
+        return null;
+    }
+
+    @Executable
+    public String fallback() {
+        return "Recovered HttpServerErrorException";
+    }
+
 }

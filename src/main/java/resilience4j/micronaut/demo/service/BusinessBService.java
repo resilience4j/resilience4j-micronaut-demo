@@ -1,63 +1,83 @@
 package resilience4j.micronaut.demo.service;
 
-import io.github.resilience4j.circuitbreaker.CircuitBreaker;
-import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
-import io.github.resilience4j.circuitbreaker.operator.CircuitBreakerOperator;
-import io.github.resilience4j.core.SupplierUtils;
-import io.reactivex.Observable;
-import resilience4j.micronaut.demo.connector.Connector;
+import io.reactivex.Flowable;
+import io.reactivex.Single;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
+import java.util.concurrent.CompletableFuture;
 
 @Singleton()
 @Named("businessBService")
-public class BusinessBService implements BusinessService  {
+public class BusinessBService implements Service {
 
-    private final Connector backendBConnector;
-    private final CircuitBreakerRegistry circuitBreakerRegistry;
-
-    public BusinessBService(@Named("backendBConnector") Connector backendBConnector,
-                            CircuitBreakerRegistry circuitBreakerRegistry){
-        this.backendBConnector = backendBConnector;
-        this.circuitBreakerRegistry = circuitBreakerRegistry;
-
-    }
-
+    @Override
     public String failure() {
-        CircuitBreaker circuitBreaker = circuitBreakerRegistry.circuitBreaker("backendB");
-        return CircuitBreaker.decorateSupplier(circuitBreaker, backendBConnector::failure).get();
+        return null;
     }
 
+    @Override
+    public String failureWithFallback() {
+        return null;
+    }
+
+    @Override
     public String success() {
-        CircuitBreaker circuitBreaker = circuitBreakerRegistry.circuitBreaker("backendB");
-        return CircuitBreaker.decorateSupplier(circuitBreaker, backendBConnector::success).get();
+        return null;
     }
 
     @Override
-    public String ignore() {
-        CircuitBreaker circuitBreaker = circuitBreakerRegistry.circuitBreaker("backendB");
-        return CircuitBreaker.decorateSupplier(circuitBreaker, backendBConnector::ignoreException).get();
+    public String successException() {
+        return null;
     }
 
     @Override
-    public Supplier<String> methodWithRecovery() {
-        CircuitBreaker circuitBreaker = circuitBreakerRegistry.circuitBreaker("backendB");
-        Supplier<String> backendFunction = CircuitBreaker.decorateSupplier(circuitBreaker, () -> backendBConnector.failure());
-        return SupplierUtils.recover(backendFunction, (t) -> recovery(t));
+    public String ignoreException() {
+        return null;
     }
 
-    public Observable<String> methodWhichReturnsAStream() {
-        CircuitBreaker circuitBreaker = circuitBreakerRegistry.circuitBreaker("backendB");
-        return backendBConnector.methodWhichReturnsAStream()
-                .timeout(1, TimeUnit.SECONDS)
-                .compose(CircuitBreakerOperator.of(circuitBreaker));
+    @Override
+    public Flowable<String> flowableSuccess() {
+        return null;
     }
 
-    private String recovery(Throwable throwable) {
-        // Handle exception and invoke fallback
-        return "Hello world from recovery";
+    @Override
+    public Flowable<String> flowableFailure() {
+        return null;
+    }
+
+    @Override
+    public Flowable<String> flowableTimeout() {
+        return null;
+    }
+
+    @Override
+    public Single<String> singleSuccess() {
+        return null;
+    }
+
+    @Override
+    public Single<String> singleFailure() {
+        return null;
+    }
+
+    @Override
+    public Single<String> singleTimeout() {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<String> futureSuccess() {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<String> futureFailure() {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<String> futureTimeout() {
+        return null;
     }
 }
