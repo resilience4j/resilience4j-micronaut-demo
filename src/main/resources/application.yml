@@ -31,7 +31,7 @@ resilience4j:
         waitDurationInOpenState: PT5s
         failureRateThreshold: 50
         eventConsumerBufferSize: 10
-        recordFailurePredicate: io.github.robwin.exception.RecordFailurePredicate
+        recordFailurePredicate: resilience4j.micronaut.demo.exception.RecordFailurePredicate
     configs:
       default:
         registerHealthIndicator: true
@@ -43,11 +43,11 @@ resilience4j:
         failureRateThreshold: 50
         eventConsumerBufferSize: 10
         recordExceptions:
-          - io.micronaut.http.exceptions.HttpStatusException.HttpStatusException
+          - io.micronaut.http.exceptions.HttpStatusException
           - java.util.concurrent.TimeoutException
           - java.io.IOException
         ignoreExceptions:
-          - io.github.robwin.exception.BusinessException
+          - resilience4j.micronaut.demo.exception.BusinessException
       shared:
         slidingWindowSize: 100
         permittedNumberOfCallsInHalfOpenState: 30
@@ -55,7 +55,7 @@ resilience4j:
         failureRateThreshold: 50
         eventConsumerBufferSize: 10
         ignoreExceptions:
-          - io.github.robwin.exception.BusinessException
+          - resilience4j.micronaut.demo.exception.BusinessException
   retry:
     enabled: true
     configs:
@@ -63,11 +63,11 @@ resilience4j:
         maxRetryAttempts: 3
         waitDuration: 100
         retryExceptions:
-          - io.micronaut.http.exceptions.HttpStatusException.HttpStatusException
+          - io.micronaut.http.exceptions.HttpStatusException
           - java.util.concurrent.TimeoutException
           - java.io.IOException
         ignoreExceptions:
-          - io.github.robwin.exception.BusinessException
+          - resilience4j.micronaut.demo.exception.BusinessException
     instances:
       backendA:
         baseConfig: default
@@ -82,7 +82,7 @@ resilience4j:
       backendA:
         maxConcurrentCalls: 10
       backendB:
-        maxWaitDuration: PT10ms
+        maxWaitDuration: PT0.01S
         maxConcurrentCalls: 20
   thread-pool-bulkhead:
     enabled: true
@@ -112,7 +112,7 @@ resilience4j:
         baseConfig: default
       backendB:
         limitForPeriod: 6
-        limitRefreshPeriod: PT500ms
+        limitRefreshPeriod: PT0.5S
         timeoutDuration: 3s
   timelimiter:
     enabled: true
