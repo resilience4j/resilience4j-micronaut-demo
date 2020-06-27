@@ -18,7 +18,16 @@ endpoints:
     sensitive: false
 
 resilience4j.circuitbreaker:
-  backend-a:
-    ringBufferSizeInClosedState: 100
-  backend-b:
-    ringBufferSizeInClosedState: 200
+  backends:
+    backendA:
+      ringBufferSizeInClosedState: 5
+      ringBufferSizeInHalfOpenState: 3
+      waitInterval: 5000
+      failureRateThreshold: 50
+      eventConsumerBufferSize: 10
+    backendB:
+      ringBufferSizeInClosedState: 10
+      ringBufferSizeInHalfOpenState: 5
+      waitInterval: 5000
+      failureRateThreshold: 50
+      eventConsumerBufferSize: 10

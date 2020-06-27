@@ -11,23 +11,24 @@ version "0.1"
 group "resilience4j.micronaut.demo"
 
 ext {
-    resilience4jVersion = "0.15.0"
+    resilience4jVersion = "1.6.0-SNAPSHOT"
 }
 
 repositories {
     mavenCentral()
+    mavenLocal()
     maven { url "https://jcenter.bintray.com" }
 }
 
 dependencyManagement {
     imports {
-        mavenBom 'io.micronaut:micronaut-bom:1.1.1'
+        mavenBom 'io.micronaut:micronaut-bom:2.0.0.M3'
     }
 }
 
 configurations {
     // for dependencies that are needed for development only
-    developmentOnly 
+    developmentOnly
 }
 
 dependencies {
@@ -39,14 +40,17 @@ dependencies {
     compile 'io.micronaut:micronaut-management'
     compile "io.micronaut:micronaut-http-client"
     compile "io.micronaut:micronaut-http-server-netty"
-    compile "io.micronaut.configuration:micronaut-micrometer-core"
-    compile 'io.micronaut.configuration:micronaut-micrometer-registry-prometheus'
+//    compile "io.micronaut.configuration:micronaut-micrometer-core"
+//    compile 'io.micronaut.configuration:micronaut-micrometer-registry-prometheus'
+    compile "io.github.resilience4j:resilience4j-circuitbreaker:${resilience4jVersion}"
     compile "io.github.resilience4j:resilience4j-circuitbreaker:${resilience4jVersion}"
     compile "io.github.resilience4j:resilience4j-ratelimiter:${resilience4jVersion}"
     compile "io.github.resilience4j:resilience4j-retry:${resilience4jVersion}"
     compile "io.github.resilience4j:resilience4j-bulkhead:${resilience4jVersion}"
     compile "io.github.resilience4j:resilience4j-consumer:${resilience4jVersion}"
     compile "io.github.resilience4j:resilience4j-micrometer:${resilience4jVersion}"
+    compile "io.github.resilience4j:resilience4j-micronaut:${resilience4jVersion}"
+    compile("io.github.resilience4j:resilience4j-rxjava2:${resilience4jVersion}") // Optional
     runtime "ch.qos.logback:logback-classic:1.2.3"
     testAnnotationProcessor "io.micronaut:micronaut-inject-java"
     testCompile "org.junit.jupiter:junit-jupiter-api"

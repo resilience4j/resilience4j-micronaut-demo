@@ -1,0 +1,63 @@
+package resilience4j.micronaut.demo.service;
+
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import io.github.resilience4j.circuitbreaker.operator.CircuitBreakerOperator;
+import io.github.resilience4j.core.SupplierUtils;
+import io.reactivex.Observable;
+import resilience4j.micronaut.demo.connector.Connector;
+
+import javax.inject.Named;
+import javax.inject.Singleton;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
+
+@Singleton()
+@Named("businessBService")
+public class BusinessBService implements BusinessService  {
+
+    private final Connector backendBConnector;
+    private final CircuitBreakerRegistry circuitBreakerRegistry;
+
+    public BusinessBService(@Named("backendBConnector") Connector backendBConnector,
+                            CircuitBreakerRegistry circuitBreakerRegistry){
+        this.backendBConnector = backendBConnector;
+        this.circuitBreakerRegistry = circuitBreakerRegistry;
+
+    }
+
+    public String failure() {
+        CircuitBreaker circuitBreaker = circuitBreakerRegistry.circuitBreaker("backendB");
+        return CircuitBreaker.decorateSupplier(circuitBreaker, backendBConnector::failure).get();
+    }
+
+    public String success() {
+        CircuitBreaker circuitBreaker = circuitBreakerRegistry.circuitBreaker("backendB");
+        return CircuitBreaker.decorateSupplier(circuitBreaker, backendBConnector::success).get();
+    }
+
+    @Override
+    public String ignore() {
+        CircuitBreaker circuitBreaker = circuitBreakerRegistry.circuitBreaker("backendB");
+        return CircuitBreaker.decorateSupplier(circuitBreaker, backendBConnector::ignoreException).get();
+    }
+
+    @Override
+    public Supplier<String> methodWithRecovery() {
+        CircuitBreaker circuitBreaker = circuitBreakerRegistry.circuitBreaker("backendB");
+        Supplier<String> backendFunction = CircuitBreaker.decorateSupplier(circuitBreaker, () -> backendBConnector.failure());
+        return SupplierUtils.recover(backendFunction, (t) -> recovery(t));
+    }
+
+    public Observable<String> methodWhichReturnsAStream() {
+        CircuitBreaker circuitBreaker = circuitBreakerRegistry.circuitBreaker("backendB");
+        return backendBConnector.methodWhichReturnsAStream()
+                .timeout(1, TimeUnit.SECONDS)
+                .compose(CircuitBreakerOperator.of(circuitBreaker));
+    }
+
+    private String recovery(Throwable throwable) {
+        // Handle exception and invoke fallback
+        return "Hello world from recovery";
+    }
+}
