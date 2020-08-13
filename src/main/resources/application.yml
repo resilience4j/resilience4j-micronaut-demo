@@ -17,8 +17,111 @@ endpoints:
     enabled: true
     sensitive: false
 
-resilience4j.circuitbreaker:
-  backend-a:
-    ringBufferSizeInClosedState: 100
-  backend-b:
-    ringBufferSizeInClosedState: 200
+resilience4j:
+  circuitbreaker:
+    enabled: true
+    instances:
+      backendA:
+        baseConfig: default
+      backendB:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 10
+        permittedNumberOfCallsInHalfOpenState: 3
+        waitDurationInOpenState: PT5s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+        recordFailurePredicate: resilience4j.micronaut.demo.exception.RecordFailurePredicate
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: PT5s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+        recordExceptions:
+          - io.micronaut.http.exceptions.HttpStatusException
+          - java.util.concurrent.TimeoutException
+          - java.io.IOException
+        ignoreExceptions:
+          - resilience4j.micronaut.demo.exception.BusinessException
+      shared:
+        slidingWindowSize: 100
+        permittedNumberOfCallsInHalfOpenState: 30
+        waitDurationInOpenState: PT1s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+        ignoreExceptions:
+          - resilience4j.micronaut.demo.exception.BusinessException
+  retry:
+    enabled: true
+    configs:
+      default:
+        maxRetryAttempts: 3
+        waitDuration: 100
+        retryExceptions:
+          - io.micronaut.http.exceptions.HttpStatusException
+          - java.util.concurrent.TimeoutException
+          - java.io.IOException
+        ignoreExceptions:
+          - resilience4j.micronaut.demo.exception.BusinessException
+    instances:
+      backendA:
+        baseConfig: default
+      backendB:
+        baseConfig: default
+  bulkhead:
+    enabled: true
+    configs:
+      default:
+        maxConcurrentCalls: 100
+    instances:
+      backendA:
+        maxConcurrentCalls: 10
+      backendB:
+        maxWaitDuration: PT0.01S
+        maxConcurrentCalls: 20
+  thread-pool-bulkhead:
+    enabled: true
+    configs:
+      default:
+        maxThreadPoolSize: 4
+        coreThreadPoolSize: 2
+        queueCapacity: 2
+    instances:
+      backendA:
+        baseConfig: default
+      backendB:
+        maxThreadPoolSize: 1
+        coreThreadPoolSize: 1
+        queueCapacity: 1
+  ratelimiter:
+    enabled: true
+    configs:
+      default:
+        registerHealthIndicator: false
+        limitForPeriod: 10
+        limitRefreshPeriod: 1s
+        timeoutDuration: 0
+        eventConsumerBufferSize: 100
+    instances:
+      backendA:
+        baseConfig: default
+      backendB:
+        limitForPeriod: 6
+        limitRefreshPeriod: PT0.5S
+        timeoutDuration: 3s
+  timelimiter:
+    enabled: true
+    configs:
+      default:
+        cancelRunningFuture: false
+        timeoutDuration: PT2s
+    instances:
+      backendA:
+        baseConfig: default
+      backendB:
+        baseConfig: default
