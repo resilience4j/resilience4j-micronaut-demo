@@ -11,7 +11,7 @@ version "0.1"
 group "resilience4j.micronaut.demo"
 
 ext {
-    resilience4jVersion = "1.6.0-SNAPSHOT"
+    resilience4jVersion = "1.7.1"
 }
 
 repositories {
@@ -22,7 +22,7 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom 'io.micronaut:micronaut-bom:2.0.0.M3'
+        mavenBom 'io.micronaut:micronaut-bom:2.5.7'
     }
 }
 
@@ -40,8 +40,7 @@ dependencies {
     compile 'io.micronaut:micronaut-management'
     compile "io.micronaut:micronaut-http-client"
     compile "io.micronaut:micronaut-http-server-netty"
-//    compile "io.micronaut.configuration:micronaut-micrometer-core"
-//    compile 'io.micronaut.configuration:micronaut-micrometer-registry-prometheus'
+    compile "io.micronaut:micronaut-aop"
     compile "io.github.resilience4j:resilience4j-circuitbreaker:${resilience4jVersion}"
     compile "io.github.resilience4j:resilience4j-circuitbreaker:${resilience4jVersion}"
     compile "io.github.resilience4j:resilience4j-ratelimiter:${resilience4jVersion}"
