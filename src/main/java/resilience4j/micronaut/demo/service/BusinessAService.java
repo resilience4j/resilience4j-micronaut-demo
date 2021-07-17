@@ -1,9 +1,9 @@
 package resilience4j.micronaut.demo.service;
 
-import io.github.resilience4j.annotation.Bulkhead;
-import io.github.resilience4j.annotation.CircuitBreaker;
-import io.github.resilience4j.annotation.Retry;
-import io.github.resilience4j.annotation.TimeLimiter;
+import io.github.resilience4j.micronaut.annotation.Bulkhead;
+import io.github.resilience4j.micronaut.annotation.CircuitBreaker;
+import io.github.resilience4j.micronaut.annotation.Retry;
+import io.github.resilience4j.micronaut.annotation.TimeLimiter;
 import io.micronaut.context.annotation.Executable;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.exceptions.HttpStatusException;

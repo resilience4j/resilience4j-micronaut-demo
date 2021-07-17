@@ -61,7 +61,7 @@ resilience4j:
     configs:
       default:
         maxRetryAttempts: 3
-        waitDuration: 100
+        wait-duration: 100ms
         retryExceptions:
           - io.micronaut.http.exceptions.HttpStatusException
           - java.util.concurrent.TimeoutException
